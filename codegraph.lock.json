@@ -1,0 +1,15 @@
+{
+  "version": "1.6.0",
+  "releaseTag": "v1.6.0",
+  "repository": "colbymchenry/codegraph",
+  "artifacts": {
+    "linux-x64": {
+      "file": "codegraph-linux-x64.tar.gz",
+      "sha256": "de3391f79ed42622d937e6cd5b7642a7ea8bb7d1473607e80b879ba73ef216b0"
+    },
+    "linux-arm64": {
+      "file": "codegraph-linux-arm64.tar.gz",
+      "sha256": "6dc935a7b8f1a61e688a578b98ea34680eb2e36d7b91db079d64f4011f1a668f"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "limits": {
+    "perTradeUsdMax": 50,
+    "dailyUsdMax": 200,
+    "maxOpenPositions": 10,
+    "approvalTimeoutSec": 120,
+    "tokenAllowlist": [],
+    "blockedSymbols": []
+  },
+  "guardedTools": ["swap_execute"],
+  "lessonsSampleMin": 5
+}

@@ -1,0 +1,22 @@
+# frog-to-toad-agent systemd --user unit — rendered by `npm run desk onboard`
+# from this template (placeholder tokens resolved at install time).
+# The piece that makes user units survive logout AND reboot:
+#   loginctl enable-linger <user>   (the wizard attempts this best-effort)
+[Unit]
+Description=Frog-to-Toad Agent (Telegram trading agent)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory={{REPO_DIR}}
+Environment=PATH={{NODE_BIN_DIR}}:/usr/local/bin:/usr/bin:/bin
+{{FROG_TO_TOAD_DIR_ENV}}
+ExecStart={{NODE_BIN_DIR}}/npm run dev
+Restart=always
+RestartSec=10
+StandardOutput=append:/tmp/frog-to-toad-agent.log
+StandardError=append:/tmp/frog-to-toad-agent.log
+
+[Install]
+WantedBy=default.target

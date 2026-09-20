@@ -1,0 +1,14 @@
+node_modules/
+.codegraph/
+.tools/codegraph/
+.env
+data/
+# The donor-era bundled Coinbase signer is intentionally quarantined from the
+# public release; keep any existing local checkout, keys, and wallet state out.
+wallet-server/
+# Belt+braces: the codex brain's OAuth keyfile (data/ is already ignored, but
+# this file must NEVER ship — same discipline as wallet-server/.env)
+data/state/codex-auth.json
+*.log
+venv/
+__pycache__/

@@ -1,0 +1,8 @@
+# Kronos runner deps (kronos-server/venv). torch: install CPU wheel explicitly —
+#   ./venv/bin/pip install torch --index-url https://download.pytorch.org/whl/cpu
+numpy
+pandas
+huggingface_hub
+tqdm
+einops
+safetensors

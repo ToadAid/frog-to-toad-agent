@@ -1,0 +1,98 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: typecheck, test, and hygiene
+    # Private-repo hosted minutes can be billing-gated. Once public, every PR
+    # automatically moves to GitHub-hosted isolation so forks never execute on
+    # the trusted operator runner.
+    runs-on: ${{ github.event.repository.private && fromJSON('["self-hosted","Linux","X64","frog-to-toad-agent","hp"]') || 'ubuntu-latest' }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit production dependency tree
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Install Bubblewrap
+        if: ${{ github.event.repository.private == false }}
+        run: sudo apt-get update && sudo apt-get install --yes bubblewrap
+
+      - name: Typecheck
+        run: npm run check
+
+      - name: Test
+        run: npm test
+
+      - name: Check changed-file whitespace
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        # Preserve vendored Kronos model source byte-for-byte; whitespace hygiene remains strict everywhere else.
+        # On the first push of a branch, github.event.before is the all-zero SHA.
+        # Compare that root commit against Git's canonical empty tree instead of skipping hygiene.
+        run: |
+          set -uo pipefail
+          ZERO_SHA=0000000000000000000000000000000000000000
+          if [ "$BASE_SHA" = "$ZERO_SHA" ]; then
+            BASE_SHA="$(git hash-object -t tree /dev/null)"
+          fi
+          git diff --check "$BASE_SHA" "$HEAD_SHA" -- . ':(exclude)kronos-server/model/**'
+
+  hardening:
+    name: trusted-host sandbox and full suite
+    if: github.event_name == 'push' && github.event.repository.private
+    runs-on: [self-hosted, Linux, X64, frog-to-toad-agent, hp]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify Bubblewrap sandbox runtime
+        run: |
+          set -uo pipefail
+          test -x /usr/bin/bwrap
+          /usr/bin/bwrap --version
+          test "$(cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns)" = "1"
+          test -f /etc/apparmor.d/bwrap-userns-restrict
+          /usr/bin/bwrap \
+            --die-with-parent \
+            --new-session \
+            --unshare-all \
+            --ro-bind / / \
+            --proc /proc \
+            --dev /dev \
+            -- /bin/true
+
+      - name: Full verification
+        run: npm run check && npm test

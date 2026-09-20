@@ -1,0 +1,49 @@
+{
+  "name": "frog-to-toad-agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Community-built Telegram agent frog — dry-run first, with guarded onchain execution.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ToadAid/frog-to-toad-agent.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ToadAid/frog-to-toad-agent/issues"
+  },
+  "homepage": "https://github.com/ToadAid/frog-to-toad-agent#readme",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "tsx --env-file-if-exists=.env src/index.ts",
+    "start": "tsx --env-file-if-exists=.env src/index.ts",
+    "check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "smoke:llm": "tsx --env-file-if-exists=.env scripts/smoke-llm.ts",
+    "smoke:market": "tsx scripts/smoke-market.ts",
+    "doctor": "tsx --env-file-if-exists=.env scripts/doctor.ts",
+    "desk": "tsx scripts/desk.ts",
+    "onboard": "tsx scripts/desk.ts onboard",
+    "mirror:repo": "tsx --env-file-if-exists=.env scripts/mirror-repo.ts",
+    "codegraph:bootstrap": "tsx scripts/codegraph.ts bootstrap",
+    "codegraph:verify": "tsx scripts/codegraph.ts verify",
+    "codegraph:status": "tsx scripts/codegraph.ts status",
+    "codegraph:wire": "tsx scripts/codegraph.ts wire",
+    "tui": "tsx --env-file-if-exists=.env src/tui/main.ts"
+  },
+  "dependencies": {
+    "@earendil-works/pi-tui": "^0.84.4",
+    "croner": "^9.0.0",
+    "grammy": "^1.32.0",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.6.0",
+    "vitest": "^5.0.1"
+  }
+}
