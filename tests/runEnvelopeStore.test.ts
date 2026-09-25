@@ -16,7 +16,13 @@ const roots: string[] = []
 function fixture(): { cfg: Config; root: string } {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'frog-run-envelope-'))
   roots.push(root)
-  return { cfg: { paths: { dataDir: root } }, root }
+  const paths = {
+    dataDir: root,
+    agentsDir: path.join(root, 'agents'),
+    skillsDir: path.join(root, 'skills'),
+    assetsDir: path.join(root, 'assets'),
+  }
+  return { cfg: { paths } as Config, root }
 }
 
 afterEach(() => {
