@@ -134,6 +134,11 @@ async function main(): Promise<void> {
   }
 
   const toolRegistry = createToolRegistry(handsOpen)
+  // Derive the exact doctor-gated capability set from the same registry factory.
+  // Closed HANDS means intentionally unavailable, not an unknown/typo tool.
+  const intentionallyUnavailableHandsTools = handsOpen
+    ? new Set<string>()
+    : new Set(createToolRegistry(true).names().filter((toolName) => !toolRegistry.get(toolName)))
 
   // Wallet lane (REAL mode only): bridge the external MCP wallet server's
   // tools into the registry under an explicit allowlist, mcp_-prefixed.
@@ -171,6 +176,10 @@ async function main(): Promise<void> {
     if (agent.tools) {
       for (const toolName of agent.tools) {
         if (toolName === 'spawn_subagent' || toolRegistry.get(toolName)) continue
+        if (!handsOpen && intentionallyUnavailableHandsTools.has(toolName)) {
+          log.warn(`agent '${name}': HANDS-gated tool '${toolName}' not registered (hands closed) — skipped`)
+          continue
+        }
         if (toolName.startsWith('mcp_')) {
           // Wallet-lane tools may legitimately be absent — dry-run rollback never
           // spawns the lane, and the agent just sees them missing. Don't refuse boot.
